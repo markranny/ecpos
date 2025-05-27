@@ -628,30 +628,33 @@ const populatePaymentMethodColumns = (data) => {
         const paymentMethod = row.paymentmethod ? row.paymentmethod.toLowerCase() : '';
         const grossAmount = parseFloat(row.total_grossamount) || 0;
         const discAmount = parseFloat(row.total_discamount) || 0;
-        const netAmount = grossAmount - discAmount; // Calculate net amount (after discount)
+        const netAmount = parseFloat(row.total_netamount) || 0; // Use the actual netamount from data
         const promoType = row.discofferid ? row.discofferid.toUpperCase() : '';
         const itemGroupValue = row.itemgroup ? row.itemgroup.toUpperCase() : '';
         const itemName = row.itemname ? row.itemname.toUpperCase() : '';
 
-        // Handle payment methods - all payment methods now subtract discount amount
+        // Handle payment methods - use netAmount for all payment methods
+        // For negative values, we should still use netAmount to maintain consistency
+        const paymentAmount = netAmount; // This ensures consistency regardless of positive/negative values
+
         switch(paymentMethod) {
             case 'cash':
-                updatedRow.cash = netAmount;
+                updatedRow.cash = paymentAmount;
                 break;
             case 'charge':
-                updatedRow.charge = netAmount; // Changed from grossAmount to netAmount
+                updatedRow.charge = paymentAmount;
                 break;
             case 'representation':
-                updatedRow.representation = netAmount; // Changed from grossAmount to netAmount
+                updatedRow.representation = paymentAmount;
                 break;
             case 'gcash':
-                updatedRow.gcash = netAmount; // Changed from grossAmount to netAmount
+                updatedRow.gcash = paymentAmount;
                 break;
             case 'foodpanda':
-                updatedRow.foodpanda = netAmount; // Changed from grossAmount to netAmount
+                updatedRow.foodpanda = paymentAmount;
                 break;
             case 'grabfood':
-                updatedRow.grabfood = netAmount; // Changed from grossAmount to netAmount
+                updatedRow.grabfood = paymentAmount;
                 break;
             default:
                 console.warn(`Unhandled payment method: ${paymentMethod}`);
